@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocVerControl - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-layout">
+    <div class="grain-overlay"></div>
+    <aside class="sidebar">
+        <h2 class="logo">DocVer<span>Control</span></h2>
+        <ul class="nav-links">
+            <li><a href="#" class="active" id="nav-dashboard" onclick="showView('dashboard')">Dashboard</a></li>
+            <li><a href="#" id="nav-documents" onclick="showView('documents')">Documents</a></li>
+            <li><a href="#" id="nav-teams" onclick="showView('teams')">Teams</a></li>
+        </ul>
+        <div class="user-profile">
+            <ul class="nav-links" style="margin: 0 0 0.5rem 0;">
+                <li><a href="#" id="nav-profile" onclick="showView('profile')">Profile</a></li>
+            </ul>
+            <button class="logout-btn" onclick="openLogoutModal()" style="width: 100%; text-align: left; padding: 0.75rem 1rem; border-radius: 8px; transition: all 0.2s;">Logout</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <!-- Dashboard View -->
+        <div id="dashboardView">
+            <div class="header">
+                <h2>Overview</h2>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Total Documents</div>
+                    <div class="stat-value" id="statTotalDocs">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Total Versions</div>
+                    <div class="stat-value" id="statTotalVersions">0</div>
+                </div>
+            </div>
+            <h3 class="section-title">Recent Activity</h3>
+            <div class="docs-container" style="padding: 1rem 1.5rem">
+                <ul class="activity-list" id="activityList">
+                    <li><span class="activity-time">Loading...</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Documents View -->
+        <div id="documentsView" class="hidden">
+            <div class="header">
+                <h2>Your Documents</h2>
+                <button class="btn primary-btn" style="width: auto; margin:0;" onclick="openUploadModal()">Upload New Document</button>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                <input type="text" id="searchInput" placeholder="Search documents by name..." oninput="filterDocs()" style="flex: 1; padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--border-color); color: white; border-radius: 8px;">
+                <select id="sortSelect" onchange="filterDocs()" style="padding: 0.75rem; background: var(--card-bg); border: 1px solid var(--border-color); color: white; border-radius: 8px; outline: none;">
+                    <option value="latest">Latest First</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
+            </div>
+
+            <div class="docs-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Versions</th>
+                            <th>Created On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="docsTableBody">
+                        <tr><td colspan="5">Loading documents...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Teams View -->
+        <div id="teamsView" class="hidden">
+            <div class="header">
+                <h2>Your Teams</h2>
+                <button class="btn primary-btn" style="width: auto; margin:0;" onclick="openCreateTeamModal()">Create New Team</button>
+            </div>
+            
+            <div style="display: flex; gap: 2rem; margin-top: 1rem;">
+                <div style="flex: 1;">
+                    <div class="card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem;">
+                        <ul id="teamsList" style="list-style: none; margin: 0; padding: 0;">
+                            <li style="padding: 1rem; color: var(--text-secondary);">Loading teams...</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div style="flex: 2; display: none;" id="teamDetailsPanel">
+                    <div class="card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+                            <h3 id="detailTeamName" style="margin: 0; font-size: 1.2rem;">Team Name</h3>
+                            <button id="addMemberBtn" class="btn primary-btn" style="width: auto; padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="openAddMemberModal()">Add Member</button>
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">Team Members</p>
+                        <div class="docs-container" style="background: transparent;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-secondary); text-align: left; font-size: 0.85rem;">
+                                        <th style="padding-bottom: 0.5rem;">Name</th>
+                                        <th style="padding-bottom: 0.5rem;">Email</th>
+                                        <th style="padding-bottom: 0.5rem;">View</th>
+                                        <th style="padding-bottom: 0.5rem;">Update</th>
+                                        <th style="padding-bottom: 0.5rem;">Manage</th>
+                                        <th style="padding-bottom: 0.5rem; text-align: right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="teamMembersBody">
+                                    <tr><td colspan="6" style="padding-top: 1rem;">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile View -->
+        <div id="profileView" class="hidden">
+            <div class="header">
+                <h2>User Profile</h2>
+            </div>
+            <div class="card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 2.5rem; max-width: 500px;">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="profileNameDisplay" readonly style="opacity: 0.8; cursor: not-allowed;">
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="profileEmailDisplay" readonly style="opacity: 0.8; cursor: not-allowed;">
+                </div>
+                <div class="input-group">
+                    <label>Username</label>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <input type="text" id="profileUsernameDisplay" style="flex: 1;">
+                        <button onclick="updateUsername()" class="btn primary-btn" style="width: auto; padding: 0 1.5rem;">Save</button>
+                    </div>
+                    <div id="usernameStatus" style="font-size: 0.85rem; margin-top: 0.5rem; display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Logout Modal -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="justify-content: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                <h3>Confirm Logout</h3>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem; text-align: center;">Are you sure you want to log out?</p>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn" style="flex: 1; background: transparent; border: 1px solid var(--border-color); color: white;" onclick="closeModal('logoutModal')">Cancel</button>
+                <button class="btn" style="flex: 1; background: var(--danger); color: white; border: none;" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Team Modal -->
+    <div class="modal-overlay" id="createTeamModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Team</h3>
+                <button class="close-btn" onclick="closeModal('createTeamModal')">&times;</button>
+            </div>
+            <form id="createTeamForm" onsubmit="createTeam(event)">
+                <div class="input-group">
+                    <label>Team Name</label>
+                    <input type="text" id="newTeamName" required>
+                </div>
+                <button type="submit" class="btn primary-btn">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div class="modal-overlay" id="addMemberModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Team Member</h3>
+                <button class="close-btn" onclick="closeModal('addMemberModal')">&times;</button>
+            </div>
+            <form id="addMemberForm" onsubmit="addTeamMember(event)">
+                <div class="input-group">
+                    <label>User Email</label>
+                    <input type="email" id="newMemberEmail" required>
+                </div>
+                <div class="input-group">
+                    <label>Permissions</label>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem; background: var(--bg-color); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+                        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-size: 0.9rem;">
+                            <input type="checkbox" id="permView" checked style="width: 18px; height: 18px; cursor: pointer;">
+                            Can View (Access lists & history)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-size: 0.9rem;">
+                            <input type="checkbox" id="permUpdate" style="width: 18px; height: 18px; cursor: pointer;">
+                            Can Update (Upload new versions)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-size: 0.9rem;">
+                            <input type="checkbox" id="permManage" style="width: 18px; height: 18px; cursor: pointer;">
+                            Can Manage (Invite/Remove people)
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn primary-btn" style="margin-top: 1rem;">Add User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Share Document Modal -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share Document to Team</h3>
+                <button class="close-btn" onclick="closeModal('shareModal')">&times;</button>
+            </div>
+            <form id="shareForm" onsubmit="shareDocument(event)">
+                <input type="hidden" id="shareDocId">
+                <div class="input-group">
+                    <label>Select Team</label>
+                    <select id="shareTeamSelect" required style="width: 100%; padding: 0.75rem; background: var(--bg-color); border: 1px solid var(--border-color); color: white; border-radius: 8px;">
+                        <!-- Filled by JS -->
+                    </select>
+                </div>
+                <button type="submit" class="btn primary-btn">Share</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="uploadModalTitle">Upload Document</h3>
+                <button class="close-btn" onclick="closeModal('uploadModal')">×</button>
+            </div>
+            <form id="uploadForm" onsubmit="handleUpload(event)">
+                <input type="hidden" id="uploadDocId" value="">
+                <div class="input-group" id="renameInfoMsg" class="hidden" style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.85rem;">
+                </div>
+                <div class="input-group">
+                    <label>File</label>
+                    <input type="file" id="uploadFile" required>
+                </div>
+                <div class="input-group">
+                    <label>Version Notes (Optional)</label>
+                    <input type="text" id="uploadNotes" placeholder="e.g. Fixed typos...">
+                </div>
+                <button type="submit" class="btn primary-btn">Upload File</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rename Modal -->
+    <div class="modal-overlay" id="renameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Rename Document</h3>
+                <button class="close-btn" onclick="closeModal('renameModal')">×</button>
+            </div>
+            <form id="renameForm" onsubmit="handleRename(event)">
+                <input type="hidden" id="renameDocId" value="">
+                <div class="input-group">
+                    <label>New Name</label>
+                    <input type="text" id="renameName" required>
+                </div>
+                <button type="submit" class="btn primary-btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3 id="historyModalTitle">Version History</h3>
+                <button class="close-btn" onclick="closeModal('historyModal')">×</button>
+            </div>
+            <div class="docs-container" style="max-height: 400px; overflow-y: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ver</th>
+                            <th>Size</th>
+                            <th>Notes</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Check Auth
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/index.html';
+        } else {
+            loadDashboard(); // initial load
+        }
+    </script>
+</body>
+</html>
